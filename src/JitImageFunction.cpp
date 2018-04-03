@@ -107,7 +107,7 @@ JitImageFunction::FuncPtrType JitImageFunction::generate(const Cell &c){
 
 
 
-void JitImageFunction::operator()(const std::vector<Image> &images, Image &out) const {
+void JitImageFunction::operator()(const std::vector<Image> &images, Image &out, int n_times) const {
     if(images.empty())
         throw std::runtime_error("must have at least one input image.");
 
@@ -127,9 +127,12 @@ void JitImageFunction::operator()(const std::vector<Image> &images, Image &out) 
     std::vector<const double*> dataPtrs;
     for(const Image &im : images)
         dataPtrs.push_back(im.getData());
+   
+   for (int i = 0; i < n_times; i++) {
+      generatedFunction(&dataPtrs[0], images[0].width(), images[0].height(), images[0].stride(),
+                        out.getData());
 
-    generatedFunction(&dataPtrs[0], images[0].width(), images[0].height(), images[0].stride(),
-                      out.getData()); 
+   }
 }
 
 // "Lower level" call for image data from other sources (e.g. opencv)

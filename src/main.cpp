@@ -42,6 +42,8 @@ int main (int argc, char *argsRaw[])
         std::cout << "    pixslam ((A B) (* 0.5 (+ A B))) image1.png image2.png blend.png\n\n";
         std::cout << "Arguments:\n\n";
         std::cout << "--logAsm     Dumps the generated assembly code to standard output.\n";
+       std::cout << "TIMES=N Executes the jited function more then once.\n";
+
         return 1;
     }
 
@@ -57,20 +59,27 @@ int main (int argc, char *argsRaw[])
             options.emplace_back(s);
     }
 
-    // parse command line arguments
-    bool logAsm = false;
-    bool logCommand = false;
-    for(auto s : options){
-        if(s == "--logAsm")
-            logAsm = true;
-        else if(s == "--logCommand")
-            logCommand = true;
-        else{
-            std::cerr << "Unrecognised command line switch: " << s << std::endl;
-            return 1;
-        }
-            
-    }
+   bool logAsm = false;
+   bool logCommand = false;
+   int n_times = 1;
+   for(auto s : options){
+      
+      if(s == "--logAsm")
+         logAsm = true;
+      else if(s == "--logCommand")
+         logCommand = true;
+      else if (s.length() > 8 and s.substr(0, 8)== "--times=") {
+         std::cout << s.substr(8) << " = s\n";
+         std::stringstream ss(s.substr(8));
+         ss >> n_times;
+      } else {
+         std::cerr << "Unrecognised command line switch: " << s << std::endl;
+         return 1;
+      }
+      
+   }
+   std::cout << n_times << " = ntimes\n";
+
 
     // See if first arg is a file and read code from it.
     // We infer file by checking that first char is not a '(' (cheeky but it works!)
@@ -128,7 +137,7 @@ int main (int argc, char *argsRaw[])
     Image outIm(inputImageViews[0].width(), inputImageViews[0].height(), inputImageViews[0].stride());
 
     // Process images!
-    cgFunction(inputImageViews, outIm);
+    cgFunction(inputImageViews, outIm, n_times);
     
     // Write output.
     outIm.write(outputImagePath);

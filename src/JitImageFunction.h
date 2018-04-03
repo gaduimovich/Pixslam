@@ -62,7 +62,7 @@ public:
     JitImageFunction(const Cell &cell, bool stdOutLogging = false);
 
     // Call JIT function.
-    void operator()(const std::vector<Image> &images, Image &out) const;
+    void operator()(const std::vector<Image> &images, Image &out, int n_times) const;
 
     // "Lower level" call for image data from other sources (e.g. opencv)
     void operator()(const std::vector<const double *> &args, 
